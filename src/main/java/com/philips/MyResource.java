@@ -11,6 +11,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -91,17 +92,17 @@ public class MyResource {
 		if (institutionId == 0) {
 			return Response.status(Status.BAD_REQUEST).build();
 		}
-		Institution inst = institutionService.findInstitution(institutionId);
+		InstitutionResponse inst = institutionService.findInstitution(institutionId);
 
 		if (inst == null) {
 			return Response.status(Status.NOT_FOUND).build();
 		}
-		return Response.ok().entity(inst).build();
+		return Response.ok().header("Access-Control-Allow-Origin","*").entity(inst).build();
 	}
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON })
-	public List<InstitutionResponse> getInstitutions() {
+	public Response getInstitutions() {
 		List<Institution> institutions = institutionService.getInstitutions();
 		List<InstitutionResponse> responseList = new ArrayList<InstitutionResponse>();
 
@@ -111,9 +112,10 @@ public class MyResource {
 			response.setName(ins.getName());
 			response.setId(ins.getId());
 			responseList.add(response);
-
 		}
-		return responseList;
+		GenericEntity<List<InstitutionResponse>> entity = new GenericEntity<List<InstitutionResponse>>(responseList) {};
+		Response response = Response.ok(entity).header("Access-Control-Allow-Origin","*").build();
+		return response;
 
 	}
 
