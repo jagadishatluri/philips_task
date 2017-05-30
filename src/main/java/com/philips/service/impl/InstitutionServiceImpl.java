@@ -3,7 +3,7 @@ package com.philips.service.impl;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.beans.BeanUtils;
+import java.util.HashSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +13,7 @@ import com.philips.dao.PatientDAO;
 import com.philips.entity.Institution;
 import com.philips.entity.Patient;
 import com.philips.resource.InstitutionRequest;
+import com.philips.resource.InstitutionResponse;
 import com.philips.service.InstitutionService;
 
 @Service
@@ -79,12 +80,22 @@ public class InstitutionServiceImpl implements InstitutionService {
 	@Override
 	public Institution findInstitution(Long institutionId) {
 		Institution institution = null;
+		InstitutionResponse response = new InstitutionResponse();
 		try {
+			
 			institution = institutionDAO.get(institutionId);
+			if(institution != null) {
+				response.setDescription(institution.getDescription());
+				response.setId(institution.getId());
+				response.setName(institution.getName());
+				
+				Set<Patient> patients = institution.getPatients();
+				response.setPatients((patients != null && patients.size() > 0) ? patients : new HashSet<Patient>());
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return institution;
+		return response;
 	}
 
 	@Override
